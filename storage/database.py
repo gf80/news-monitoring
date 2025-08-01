@@ -56,7 +56,7 @@ def add_user(id: int, username: str) -> None:
         pass
     conn.close()
 
-def get_mailings_users() -> list[tuple]:
+def get_mailings_users():
     conn = get_connection()
     c = conn.cursor()
     c.execute("SELECT id, username, mailings FROM users WHERE mailings = 1")
@@ -64,10 +64,16 @@ def get_mailings_users() -> list[tuple]:
     conn.close()
     return result
 
-def get_unsent_news() -> list[tuple]:
+def get_unsent_news():
     conn = get_connection()
     c = conn.cursor()
-    c.execute("SELECT id, title, link, date_published FROM news WHERE is_sent = 1 ORDER BY date_added DESC;")
+    c.execute("""
+SELECT id, title, link, date_published 
+FROM news 
+WHERE is_sent = 0 
+  AND date_published >= datetime('now', '-3 days')
+ORDER BY date_published ASC
+""")
     result = c.fetchall()
     conn.close()
     return result

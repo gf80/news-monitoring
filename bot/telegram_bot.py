@@ -1,14 +1,14 @@
-from aiogram import Bot, Dispatcher, F
-from aiogram.types import Message, BotCommand
-from aiogram.filters import Command
-from storage.database import get_unsent_news, update_subscribe_user, get_mailings_users, update_sent_news, add_user
+import telebot
+from telebot import types
 from config import BOT_TOKEN
+from storage.database import get_unsent_news, get_mailings_users, update_sent_news, add_user, update_subscribe_user
 
-bot = Bot(token=BOT_TOKEN)
-dp = Dispatcher()
+# Инициализация бота с токеном
+bot = telebot.TeleBot(BOT_TOKEN)
 
-@dp.message(Command("start"))
-async def cmd_start(message: Message):
+# Обработчик команды /start
+@bot.message_handler(commands=['start'])
+def cmd_start(message):
     WELCOME_MESSAGE = (
     f"👋 *Привет, {message.from_user.full_name}!* Добро пожаловать в *Новости Лермонтов* 📰\n\n"
     "📌 Здесь ты будешь получать свежие новости и важные события прямо в Telegram.\n\n"
@@ -21,23 +21,23 @@ async def cmd_start(message: Message):
     "   • Если хочешь предложить идею или новый источник — просто напиши в чат.\n\n"
     "🚀 *Подключайся к подписке и будь в курсе событий!*"
 )
-    await message.answer(WELCOME_MESSAGE, parse_mode="Markdown")
+    bot.send_message(message.chat.id, WELCOME_MESSAGE, parse_mode="Markdown")
     add_user(message.from_user.id, message.from_user.username)
 
 
-@dp.message(Command("subscribe"))
-async def cmd_subscribe(message: Message):
+@bot.message_handler(commands=['subscribe'])
+def cmd_subscribe(message):
     update_subscribe_user(message.from_user.id, True)
-    await message.answer("🔔 Вы успешно подписались на рассылку новостей!")
+    bot.send_message(message.chat.id, "🔔 Вы успешно подписались на рассылку новостей!")
 
 
-@dp.message(Command("unsubscribe"))
-async def cmd_unsubscribe(message: Message):
+@bot.message_handler(commands=['unsubscribe'])
+def cmd_unsubscribe(message):
     update_subscribe_user(message.from_user.id, False)
-    await message.answer("🔕 Вы успешно отписались от рассылок новостей!")
+    bot.send_message(message.chat.id, "🔕 Вы успешно отписались от рассылок новостей!")
 
 
-async def check_and_notify():
+def check_and_notify():
     unsent_news = get_unsent_news()
     mailings_users = get_mailings_users()
 
@@ -49,9 +49,11 @@ async def check_and_notify():
         
         for user_id, username, mailings in mailings_users:
             try:
-                await bot.send_message(user_id, text, parse_mode="Markdown")
+                bot.send_message(user_id, text, parse_mode="Markdown")
             except Exception as e:
                 print(f"Ошибка при отправке пользователю {user_id}: {e}")
 
         # После рассылки помечаем новость как отправленную
         update_sent_news(news_id)
+
+

@@ -7,11 +7,13 @@ from config import NEWS_URL
 
 from storage.database import add_news
 
+from utils.utils import parse_russian_date
+
 
 class CityParser(BaseParser):
     URL = NEWS_URL
 
-    def fetch_news(self) -> list[dict]:
+    def fetch_news(self):
         r = requests.get(self.URL)
         soup = bs(r.text, "html.parser")
 
@@ -21,13 +23,14 @@ class CityParser(BaseParser):
             link = item.select_one("a")["href"]
             date = item.select_one("p.posts-search-item-date").get_text(strip=True)
 
+
             new = {
                 "title": title,
                 "link": link,
-                "date": date,
+                "date": parse_russian_date(date),
             }
 
-            add_news(title, link, date)
+            add_news(title, link, parse_russian_date(date))
             news.append(new)
 
         return news
