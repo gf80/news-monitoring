@@ -1,0 +1,38 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+
+# Virtual environment (если внутри проекта)
+.venv/
+env/
+venv/
+
+
+config.py
+
+# Environment variables and secrets
+.env
+*.env
+
+# SQLite (или другие локальные БД)
+*.sqlite3
+*.db
+*.db-shm
+*.db-wal
+
+# VSCode / PyCharm / IDE metadata
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Compiled files
+*.so
+
+# OS-specific
+.DS_Store
+Thumbs.db
